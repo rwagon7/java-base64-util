@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Base64Table {
 
-    private final Map<String,String> table;
+    private final Map<String,String> table = new HashMap<String,String>();
 
     public Map<String, String> getTable() {
         return table;
@@ -13,7 +13,6 @@ public class Base64Table {
     private Integer counter = 0;
 
     public Base64Table() {
-        table = new Hashtable<>();
         this.upperCaseAlphabets();
         this.lowerCaseAlphabets();
         this.integers();
@@ -36,10 +35,10 @@ public class Base64Table {
 
         for(Integer i=97; i<=122; i++) {
                 Character base64Ch = (char) i.intValue();
-                table.put(counter.toString(),base64Ch.toString());
+            table.put(counter.toString(),base64Ch.toString());
                 counter++;
         }
-        //table.forEach((key, value) -> System.out.println(key + " " + value));
+//        table.forEach((key, value) -> System.out.println(key + " " + value));
     }
 
     private void integers(){
@@ -61,6 +60,8 @@ public class Base64Table {
         counter++;
         table.put(counter.toString()," ");
     }
+
+
 
 
 }

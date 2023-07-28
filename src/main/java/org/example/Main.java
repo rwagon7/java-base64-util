@@ -16,6 +16,8 @@ public class Main {
         MyBase64Util base64 = new MyBase64Util();
         System.out.println(base64.encoder("Manyhandsmakelightwork",table.getTable()));
         //TWFueSBoYW5kcyBtYWtlIGxpZ2h0IHdvcmsu
+        System.out.println(base64.decoder("TWFueWhhbmRzbWFrZWxpZ2h0d29ya=",table.getTable()));;
+        //
 
     }
 }
