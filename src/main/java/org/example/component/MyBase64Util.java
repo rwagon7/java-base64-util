@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 
 public class MyBase64Util implements IMyBase64Util{
 
+    static final int SIZE = 100;
+
+
     public String encoder(String input, Map<String,String> table){
 
         //input
@@ -57,78 +60,84 @@ public class MyBase64Util implements IMyBase64Util{
         return base64.toString();
     };
 
-    public String decoder(String input,Map<String,String> table) throws UnsupportedEncodingException {
-        //BASE64 TO SEXTENT
-        //input
-        StringBuilder base64builder = new StringBuilder();
-        base64builder.append(input);
-        int length = base64builder.length();
-        List<Integer> sextantArray = new ArrayList<Integer>();
-        //STEP 1 INPUT
-        Integer counter = 0;
+    public String decoder(char[] encoded,int len_str) {
 
-        //process
-        while (counter < length) {
+        char []decoded_String;
 
-            Iterator<Map.Entry<String, String>> itr = table.entrySet().iterator();
-            String scounter = String.valueOf(base64builder.charAt(0));
-            base64builder.deleteCharAt(0);
-            while (itr.hasNext()) {
-                Map.Entry<String, String> entry = itr.next();
-                if (entry.getValue().equals(scounter)) {
-                    sextantArray.add(Integer.parseInt(entry.getKey().toString()));
-                    break;
+        decoded_String = new char[SIZE];
+
+        int i, j, k = 0;
+
+        // stores the bitstream.
+        int num = 0;
+
+        // count_bits stores current
+        // number of bits in num.
+        int count_bits = 0;
+
+        // selects 4 characters from
+        // encoded String at a time.
+        // find the position of each encoded
+        // character in char_set and stores in num.
+        for (i = 0; i < len_str; i += 4)
+        {
+            num = 0; count_bits = 0;
+            for (j = 0; j < 4; j++)
+            {
+
+                // make space for 6 bits.
+                if (encoded[i + j] != '=')
+                {
+                    num = num << 6;
+                    count_bits += 6;
+                }
+
+            /* Finding the position of each encoded
+            character in char_set
+            and storing in "num", use OR
+            '|' operator to store bits.*/
+
+                // encoded[i + j] = 'E', 'E' - 'A' = 5
+                // 'E' has 5th position in char_set.
+                if (encoded[i + j] >= 'A' && encoded[i + j] <= 'Z')
+                    num = num | (encoded[i + j] - 'A');
+
+                    // encoded[i + j] = 'e', 'e' - 'a' = 5,
+                    // 5 + 26 = 31, 'e' has 31st position in char_set.
+                else if (encoded[i + j] >= 'a' && encoded[i + j] <= 'z')
+                    num = num | (encoded[i + j] - 'a' + 26);
+
+                    // encoded[i + j] = '8', '8' - '0' = 8
+                    // 8 + 52 = 60, '8' has 60th position in char_set.
+                else if (encoded[i + j] >= '0' && encoded[i + j] <= '9')
+                    num = num | (encoded[i + j] - '0' + 52);
+
+                    // '+' occurs in 62nd position in char_set.
+                else if (encoded[i + j] == '+')
+                    num = num | 62;
+
+                    // '/' occurs in 63rd position in char_set.
+                else if (encoded[i + j] == '/')
+                    num = num | 63;
+
+                    // ( str[i + j] == '=' ) remove 2 bits
+                    // to delete appended bits during encoding.
+                else
+                {
+                    num = num >> 2;
+                    count_bits -= 2;
                 }
             }
-            counter++;
 
-        }
-        //uncomment to view sextant array
-        // System.out.println(Arrays.toString(sextantArray.toArray()));
+            while (count_bits != 0) {
+                count_bits -= 8;
 
-        
-        //SEXTENT TO OCTENT
-        ArrayList<String> base8_array = new ArrayList<String>();
-        StringBuilder base2Builder = new StringBuilder();
-
-        for(int i=0; i<sextantArray.size(); i++){
-
-            int base6_element = sextantArray.get(i).intValue();
-
-            while(base6_element > 0){
-
-                base2Builder.append(base6_element % 2);
-                base6_element = base6_element / 2;
-
+                // 255 in binary is 11111111
+                decoded_String[k++] = (char)
+                        ((num >> count_bits) & 255);
             }
 
-            base8_array.add(base2Builder.toString());
-            base2Builder.setLength(0);
         }
-
-        System.out.println(Arrays.toString(base8_array.toArray()));
-
-        //BINARY TO DECIMAL
-        StringBuilder base10Builder = new StringBuilder();
-        ArrayList<String> base10_array = new ArrayList<String>();
-
-        for(String s : base8_array){
-            base10Builder.append(s);
-        }
-
-        for(int i =0; i<base10Builder.length(); i+=9){
-            if(base10Builder.length() - i < 9) break;
-            String element = base10Builder.substring(i,i+9);
-            base10_array.add(element);
-        }
-            base10Builder.setLength(0);
-        for(int i=0; i<base10_array.size(); i++){
-            int base10_record = Integer.parseInt(base10_array.get(i).toString(),10);
-            Character character = Character.forDigit(base10_record, 10);
-            base10Builder.append(character);
-        }
-
-        return base10Builder.toString();
-
-        }
+        return Arrays.toString(decoded_String);
+    }
 }

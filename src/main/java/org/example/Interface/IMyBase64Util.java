@@ -7,5 +7,5 @@ public interface IMyBase64Util {
 
     public String encoder(String input, Map<String, String> table);
 
-    public String decoder(String input, Map<String,String> table) throws UnsupportedEncodingException;
+    public String decoder(char[] input,int length) throws UnsupportedEncodingException;
 }
